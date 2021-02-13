@@ -1,4 +1,6 @@
 ﻿using Buisness.Abstract;
+using Buisness.Constants;
+using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entities.Concrete;
 using System;
@@ -14,43 +16,44 @@ namespace Buisness.Concrete
         {
             _brandDal = brandDal;
         }
-        public void Add(Brand brand)
+        public IResult Add(Brand brand)
         {
-            if (brand.BrandName.Length>2)
+            if (brand.BrandName.Length < 2)
             {
-                _brandDal.Add(brand);
+                return new ErrorResult(Messages.NameInvalid);
             }
-            else
-            {
-                Console.WriteLine("Lütfen Marka ismini 2 karakterden fazla giriniz");
-            }
+            _brandDal.Add(brand);
+            return new SuccessResult(Messages.Added);
         }
 
-        public void Delete(Brand brand)
+        public IResult Delete(Brand brand)
         {
             _brandDal.Delete(brand);
+            return new SuccessResult(Messages.Deleted);
         }
 
-        public List<Brand> GetAll()
+        public IDataResult<List<Brand>> GetAll()
         {
-            return _brandDal.GetAll();
-        }
-
-        public Brand GetById(int id)
-        {
-            return _brandDal.Get(b=>b.BrandId==id);
-        }
-
-        public void Update(Brand brand)
-        {
-            if (brand.BrandName.Length > 2)
+            if (DateTime.Now.Hour == 22)
             {
-                _brandDal.Update(brand);
+                return new ErrorDataResult<List<Brand>>(Messages.MaintenanceTime);
             }
-            else
+            return new SuccessDataResult<List<Brand>>(_brandDal.GetAll(), Messages.Listed);
+        }
+
+        public IDataResult<Brand> GetById(int id)
+        {
+            return new SuccessDataResult<Brand>(_brandDal.Get(b=>b.BrandId==id));
+        }
+
+        public IResult Update(Brand brand)
+        {
+            if (brand.BrandName.Length < 2)
             {
-                Console.WriteLine("Lütfen Marka ismini 2 karakterden fazla giriniz");
+                return new ErrorResult(Messages.NameInvalid);
             }
+            _brandDal.Update(brand);
+            return new SuccessResult(Messages.Updated);
         }
     }
 }
