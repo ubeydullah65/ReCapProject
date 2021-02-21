@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Buisness.Abstract
 {
-    interface IBrandService
+    public interface IBrandService
     {
         IResult Add(Brand brand);
         IResult Delete(Brand brand);

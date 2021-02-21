@@ -1,5 +1,8 @@
 ﻿using Buisness.Abstract;
 using Buisness.Constants;
+using Buisness.ValidationRules.FluentValidation;
+using Core.Aspects.Autofac.Validation;
+using Core.CrossCuttingConcerns.Validation;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entities.Concrete;
@@ -16,12 +19,9 @@ namespace Buisness.Concrete
         {
             _rentalDal = rentalDal;
         }
+        [ValidationAspect(typeof(RentalValidator))]
         public IResult Add(Rental rental)
         {
-            if (rental.ReturnDate==null)
-            {
-                return new ErrorResult(Messages.NotReturn);
-            }
             _rentalDal.Add(rental);
             return new ErrorResult(Messages.Added);
         }
@@ -34,10 +34,6 @@ namespace Buisness.Concrete
 
         public IDataResult<List<Rental>> GetAll()
         {
-            if (DateTime.Now.Hour == 23)
-            {
-                return new ErrorDataResult<List<Rental>>(Messages.MaintenanceTime);
-            }
             return new SuccessDataResult<List<Rental>>(_rentalDal.GetAll(), Messages.Listed);
         }
 
@@ -45,13 +41,9 @@ namespace Buisness.Concrete
         {
             return new SuccessDataResult<Rental>(_rentalDal.Get(c => c.Id == id));
         }
-
+        [ValidationAspect(typeof(RentalValidator))]
         public IResult Update(Rental rental)
         {
-            if (rental.ReturnDate == null)
-            {
-                return new ErrorResult(Messages.NotReturn);
-            }
             _rentalDal.Update(rental);
             return new SuccessResult(Messages.Updated);
         }

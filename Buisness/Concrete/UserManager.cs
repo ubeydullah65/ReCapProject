@@ -1,5 +1,8 @@
 ﻿using Buisness.Abstract;
 using Buisness.Constants;
+using Buisness.ValidationRules.FluentValidation;
+using Core.Aspects.Autofac.Validation;
+using Core.CrossCuttingConcerns.Validation;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entities.Concrete;
@@ -17,12 +20,10 @@ namespace Buisness.Concrete
         {
             _userDal = userDal;
         }
+        [ValidationAspect(typeof(UserValidator))]
         public IResult Add(User user)
         {
-            if (user.Email == null)
-            {
-                return new ErrorResult(Messages.MailNull);
-            }
+           
             _userDal.Add(user);
             return new SuccessResult(Messages.Added);
 
@@ -36,10 +37,7 @@ namespace Buisness.Concrete
 
         public IDataResult<List<User>> GetAll()
         {
-            if (DateTime.Now.Hour == 23)
-            {
-                return new ErrorDataResult<List<User>>(Messages.MaintenanceTime);
-            }
+            
             return new SuccessDataResult<List<User>>(_userDal.GetAll(), Messages.Listed);
         }
 
@@ -52,13 +50,10 @@ namespace Buisness.Concrete
         {
             return new SuccessDataResult<List<UserDetailDto>>(_userDal.userDetails());
         }
-
+        [ValidationAspect(typeof(UserValidator))]
         public IResult Update(User user)
         {
-            if (user.Email == null)
-            {
-                return new ErrorResult(Messages.MailNull);
-            }
+            
             _userDal.Update(user);
             return new SuccessResult(Messages.Updated);
         }

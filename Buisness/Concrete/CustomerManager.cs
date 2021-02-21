@@ -1,5 +1,8 @@
 ﻿using Buisness.Abstract;
 using Buisness.Constants;
+using Buisness.ValidationRules.FluentValidation;
+using Core.Aspects.Autofac.Validation;
+using Core.CrossCuttingConcerns.Validation;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entities.Concrete;
@@ -16,13 +19,10 @@ namespace Buisness.Concrete
         {
             _customerDal = customerDal;
         }
-
+        [ValidationAspect(typeof(CustomerValidator))]
         public IResult Add(Customer customer)
         {
-            if (customer.CompanyName == null)
-            {
-                return new ErrorResult(Messages.CompanyNameNull);
-            }
+           
             _customerDal.Add(customer);
             return new SuccessResult(Messages.Added);
         }
@@ -36,10 +36,7 @@ namespace Buisness.Concrete
 
         public IDataResult<List<Customer>> GetAll()
         {
-            if (DateTime.Now.Hour == 23)
-            {
-                return new ErrorDataResult<List<Customer>>(Messages.MaintenanceTime);
-            }
+            
             return new SuccessDataResult<List<Customer>>(_customerDal.GetAll(), Messages.Listed);
         }
 
@@ -47,13 +44,10 @@ namespace Buisness.Concrete
         {
             return new SuccessDataResult<Customer>(_customerDal.Get(c => c.UserId == id));
         }
-
+        [ValidationAspect(typeof(CustomerValidator))]
         public IResult Update(Customer customer)
         {
-            if (customer.CompanyName == null)
-            {
-                return new ErrorResult(Messages.CompanyNameNull);
-            }
+            
             _customerDal.Update(customer);
             return new SuccessResult(Messages.Updated);
         }
